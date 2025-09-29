@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GreenGuardians - Demo</title>
+    <style>
+        :root {
+            --primary-color: #2E7D32; /* Deep Green */
+            --secondary-color: #4CAF50; /* Bright Green */
+            --accent-color: #FFC107; /* Amber */
+            --text-color: #333;
+            --light-text-color: #fff;
+            --bg-color: #f4f6f8;
+            --card-bg: #ffffff;
+            --shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 80px auto 20px;
+            padding: 20px;
+        }
+        
+        /* Navigation Bars */
+        .navbar {
+            padding: 15px 0;
+            box-shadow: var(--shadow);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--primary-color);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+        
+        .nav-logo {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: var(--light-text-color);
+            text-decoration: none;
+        }
+        
+        .nav-links a {
+            color: var(--light-text-color);
+            text-decoration: none;
+            margin-left: 20px;
+            font-weight: 500;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .nav-links a.active, .nav-links a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        #public-nav, #guardian-nav { display: none; }
+
+        .page { display: none; }
+        .page.active { display: block; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        h1, h2, h3 { color: var(--primary-color); margin-bottom: 20px; }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            background-color: var(--secondary-color);
+            color: var(--light-text-color);
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: background-color 0.3s, transform 0.2s;
+            text-align: center;
+            display: inline-block;
+            text-decoration: none;
+        }
+        .btn:hover { background-color: var(--primary-color); transform: translateY(-2px); }
+        .btn-accent { background-color: var(--accent-color); color: var(--text-color); }
+
+        #scan-page { text-align: center; margin-top: 150px; }
+        .scanner-box { max-width: 600px; margin: 20px auto; }
+        .scanner-box img { max-width: 100%; border-radius: 10px; }
+
+        .results-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .score-card { text-align: center; }
+        .score-card .score-value { font-size: 2.5em; font-weight: bold; }
+        .score-card.packaging .score-value { color: #2196F3; }
+        .score-card.material .score-value { color: #F44336; }
+        .score-card.recyclability .score-value { color: var(--secondary-color); }
+        .cta-card { background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: var(--light-text-color); text-align: center; }
+        .cta-card h2 { color: var(--light-text-color); }
+        
+        #login-page { max-width: 450px; margin: 100px auto; text-align: center; }
+        #login-page .form-group { margin-bottom: 20px; text-align: left; }
+        #login-page input { width: 100%; padding: 12px; border-radius: 5px; border: 1px solid #ddd; font-size: 1em; }
+        
+        .dashboard-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+        .impact-metric { text-align: center; padding: 20px; }
+        .impact-metric .value { font-size: 3em; font-weight: bold; color: var(--secondary-color); }
+        .badge-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 15px; text-align: center; }
+        .badge .icon { font-size: 2.5em; }
+        .badge .name { font-size: 0.8em; margin-top: 5px; }
+
+        .create-post-box { display: flex; gap: 15px; align-items: center; }
+        .create-post-box textarea { width: 100%; height: 60px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-family: inherit; font-size: 1em; resize: none; }
+        .feed-post { display: flex; gap: 15px; }
+        .avatar { font-size: 2em; width: 50px; height: 50px; min-width: 50px; border-radius: 50%; background: var(--accent-color); color: var(--text-color); display: flex; align-items: center; justify-content: center; font-weight: bold;}
+        .feed-post .content { flex-grow: 1; }
+        .feed-post .author { font-weight: bold; }
+
+        .tabs { display: flex; margin-bottom: 20px; gap: 10px; }
+        .tab-btn { padding: 10px 20px; background-color: #ddd; border: none; cursor: pointer; border-radius: 5px; font-size: 1em; }
+        .tab-btn.active { background-color: var(--primary-color); color: var(--light-text-color); }
+        .leaderboard-content { display: none; }
+        .leaderboard-content.active { display: block; }
+        .leaderboard-list li { display: flex; justify-content: space-between; padding: 15px; border-radius: 5px; }
+        .leaderboard-list li:nth-child(odd) { background-color: #e9f5e9; }
+        .leaderboard-list li strong { color: var(--primary-color); }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-grid input { width: 100%; padding: 12px; border-radius: 5px; border: 1px solid #ddd; }
+        .upload-area { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 20px 0; }
+        .upload-btn { border: 2px dashed #ccc; border-radius: 10px; padding: 20px; text-align: center; cursor: pointer; }
+        .upload-btn.uploaded { border-style: solid; border-color: var(--secondary-color); background-color: #e9f5e9; }
+        .upload-icon { font-size: 2.5em; }
+
+        .verification-images { display: flex; gap: 15px; justify-content: center; margin-bottom: 20px; }
+        .verification-images img { width: 150px; height: 150px; object-fit: cover; border: 1px solid #ddd; border-radius: 5px; }
+        .verification-actions { display: flex; justify-content: center; gap: 20px; margin-top: 20px; }
+
+        .toast { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background-color: var(--primary-color); color: var(--light-text-color); padding: 15px 30px; border-radius: 5px; box-shadow: var(--shadow); transition: bottom 0.5s ease-in-out; z-index: 3000; }
+    </style>
+</head>
+<body>
+    <nav id="public-nav" class="navbar">
+        <div class="nav-container">
+            <a href="#" class="nav-logo" onclick="showPage('scan-page')">🛡️ GreenGuardians</a>
+            <div class="nav-links">
+                <a href="#" onclick="showPage('scan-page')">Scan</a>
+                <a href="#" onclick="showPage('login-page')">Login / Sign Up</a>
+            </div>
+        </div>
+    </nav>
+    
+    <nav id="guardian-nav" class="navbar">
+        <div class="nav-container">
+            <a href="#" class="nav-logo" onclick="showPage('dashboard-page')">🛡️ GreenGuardians</a>
+            <div class="nav-links">
+                <a href="#" onclick="showPage('dashboard-page')" data-page="dashboard-page">Dashboard</a>
+                <a href="#" onclick="showPage('community-page')" data-page="community-page">Community</a>
+                <a href="#" onclick="showPage('leaderboards-page')" data-page="leaderboards-page">Leaderboards</a>
+                <a href="#" onclick="showPage('submit-page')" data-page="submit-page">Submit Product</a>
+                <a href="#" onclick="logout()">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div id="scan-page" class="page active">
+            <h1>Uncover the Truth Behind the Packaging</h1>
+            <p>Use our simulator to instantly analyze a product's environmental impact.</p>
+            <div class="scanner-box card">
+                <img src="https://i.imgur.com/u8J0vUe.png" alt="A packet of Britannia Good Day Biscuits">
+                <button class="btn" style="margin-top: 20px;" onclick="simulateScan()">Scan Product</button>
+            </div>
+        </div>
+        
+        <div id="results-page" class="page">
+             <h1>Scan Results: Britannia Good Day</h1>
+            <div class="results-grid">
+                <div class="card score-card packaging"><h3>Packaging Score</h3><div class="score-value">95/100</div><p>Efficiently packaged with minimal excess material.</p></div>
+                <div class="card score-card material"><h3>Material Score</h3><div class="score-value">35/100</div><p>Made from multi-layer plastic, which has a high environmental impact.</p></div>
+                <div class="card score-card recyclability"><h3>Recyclability Score</h3><div class="score-value">F</div><p>Not recycled in your area (Chennai).</p></div>
+            </div>
+            <div class="card cta-card">
+                <h2>Join the Guard!</h2>
+                <p>Sign up to contribute data, earn points, and track your impact.</p>
+                <button class="btn" style="margin-top:20px; background:var(--accent-color); color:var(--text-color);" onclick="showPage('login-page')">Sign Up Now</button>
+            </div>
+        </div>
+
+        <div id="login-page" class="page">
+            <div class="card" style="max-width: 450px; margin: auto;">
+                <h1>Become a Guardian</h1>
+                <p>Log in or create an account to access the full experience.</p>
+                <div class="form-group"><input type="email" placeholder="Email (e.g., priya@email.com)"></div>
+                <div class="form-group"><input type="password" placeholder="Password (e.g., ••••••••)"></div>
+                <button class="btn" style="width: 100%;" onclick="login()">Login / Sign Up</button>
+            </div>
+        </div>
+        
+        <div id="dashboard-page" class="page">
+            <h1>Welcome back, Guardian Priya!</h1>
+            <div class="dashboard-grid">
+                <div class="card">
+                    <h2>Your Impact</h2>
+                    <div class="impact-metric"><div class="value">1.2 kg</div><div>of non-recyclable waste diverted!</div></div>
+                </div>
+                <div class="card">
+                    <h2>Your Rank</h2>
+                    <div class="impact-metric"><div class="value" style="font-size: 2em; padding-top: 10px;">Level 12</div><div>Eco-Guardian</div></div>
+                </div>
+            </div>
+            <div class="card">
+                <h2>Your Badges</h2>
+                <div class="badge-grid">
+                    <div class="badge"><div class="icon">🚀</div><div class="name">First Scan</div></div>
+                    <div class="badge"><div class="icon">🛠️</div><div class="name">Database Builder</div></div>
+                    <div class="badge"><div class="icon">🛡️</div><div class="name">Guardian of Quality</div></div>
+                    <div class="badge"><div class="icon">♻️</div><div class="name">Plastic Warrior</div></div>
+                    <div class="badge"><div class="icon">🌍</div><div class="name">City Leader</div></div>
+                    <div class="badge"><div class="icon">🔥</div><div class="name">5-Day Streak</div></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="community-page" class="page">
+             <h1>Community Feed</h1>
+             <div class="card create-post-box">
+                <div class="avatar">P</div>
+                <textarea placeholder="Share an eco-tip or achievement, Priya..."></textarea>
+                <button class="btn" onclick="showToast('Your post has been shared!')">Post</button>
+            </div>
+             <div class="card feed-post">
+                <div class="avatar">🏆</div>
+                <div class="content"><div class="author">GreenGuardians Announcement</div><div><strong>Rohan K.</strong> just reached <strong>Level 10: Eco-Contributor!</strong> 🎉</div></div>
+            </div>
+             <div class="card feed-post">
+                <div class="avatar">V</div>
+                <div class="content"><div class="author">Vikram R.</div><div>Just switched to a local brand of soap that uses paper packaging. Small changes matter! #GoGreen</div></div>
+            </div>
+        </div>
+
+        <div id="leaderboards-page" class="page">
+            <h1>Community Leaderboards</h1>
+            <div class="tabs">
+                <button class="tab-btn active" onclick="showLeaderboard('city')">My City</button>
+                <button class="tab-btn" onclick="showLeaderboard('state')">My State</button>
+                <button class="tab-btn" onclick="showLeaderboard('national')">National</button>
+            </div>
+            <div id="city-leaderboard" class="leaderboard-content active">
+                <div class="card">
+                    <h3>Chennai Leaderboard (Weekly)</h3>
+                    <ul class="leaderboard-list" style="list-style-type: none;">
+                        <li><span>1. <strong>Karthik</strong></span> <span>18,500 XP</span></li>
+                        <li><span>2. <strong>Priya S.</strong></span> <span>15,200 XP</span></li>
+                        <li><span>3. <strong>Anjali M.</strong></span> <span>13,500 XP</span></li>
+                    </ul>
+                </div>
+            </div>
+            <div id="state-leaderboard" class="leaderboard-content">
+                <div class="card">
+                    <h3>Tamil Nadu Leaderboard</h3>
+                    <ul class="leaderboard-list" style="list-style-type: none;">
+                         <li><span>1. <strong>Karthik (Chennai)</strong></span> <span>18,500 XP</span></li>
+                         <li><span>2. <strong>Priya S. (Chennai)</strong></span> <span>15,200 XP</span></li>
+                         <li><span>3. <strong>Meena (Coimbatore)</strong></span> <span>14,100 XP</span></li>
+                    </ul>
+                </div>
+            </div>
+             <div id="national-leaderboard" class="leaderboard-content">
+                <div class="card">
+                    <h3>National Leaderboard</h3>
+                    <ul class="leaderboard-list" style="list-style-type: none;">
+                         <li><span>1. <strong>Arjun (Mumbai)</strong></span> <span>25,600 XP</span></li>
+                        <li><span>2. <strong>Diya (Delhi)</strong></span> <span>24,900 XP</span></li>
+                         <li><span>3. <strong>Priya S. (Chennai)</strong></span> <span>15,200 XP</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div id="submit-page" class="page">
+            <h1>Add a New Product</h1>
+            <div class="card">
+                <div class="form-grid">
+                    <div><label>Product Name</label><input type="text" placeholder="e.g., Maggi Noodles"></div>
+                    <div><label>Brand Name</label><input type="text" placeholder="e.g., Nestlé"></div>
+                </div>
+                <div class="upload-area">
+                    <div class="upload-btn" id="upload-barcode" onclick="uploadImage('barcode')"><div class="upload-icon">📊</div><div>Barcode</div></div>
+                    <div class="upload-btn" id="upload-front" onclick="uploadImage('front')"><div class="upload-icon">📦</div><div>Front</div></div>
+                    <div class="upload-btn" id="upload-ingredients" onclick="uploadImage('ingredients')"><div class="upload-icon">🧪</div><div>Ingredients</div></div>
+                </div>
+                <div style="text-align: center;"><button class="btn" onclick="submitForVerification()">Submit for Verification</button></div>
+            </div>
+        </div>
+
+        <div id="verify-page" class="page">
+            <h1>Help Verify This Submission</h1>
+            <div class="card" style="text-align: center;">
+                <p>Submitted by: Rohan K.</p>
+                <div class="verification-images">
+                    <img src="https://via.placeholder.com/150/8BC34A/FFFFFF?Text=Barcode" alt="Barcode">
+                    <img src="https://via.placeholder.com/150/4CAF50/FFFFFF?Text=Front" alt="Front of Product">
+                    <img src="https://via.placeholder.com/150/2E7D32/FFFFFF?Text=Info" alt="Ingredients">
+                </div>
+                <p>Does the submission appear accurate?</p>
+                <div class="verification-actions">
+                    <button class="btn" onclick="handleVerification(true)">✅ Approve</button>
+                    <button class="btn btn-accent" onclick="handleVerification(false)">❌ Flag</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="toast-notification" class="toast"></div>
+
+    <script>
+        let isLoggedIn = false;
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            
+            if (isLoggedIn) {
+                document.getElementById('public-nav').style.display = 'none';
+                document.getElementById('guardian-nav').style.display = 'flex';
+                 document.querySelectorAll('#guardian-nav .nav-links a').forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('data-page') === pageId) {
+                        link.classList.add('active');
+                    }
+                });
+            } else {
+                document.getElementById('public-nav').style.display = 'flex';
+                document.getElementById('guardian-nav').style.display = 'none';
+            }
+            window.scrollTo(0, 0);
+        }
+
+        function simulateScan() {
+            showToast('Scanning...');
+            setTimeout(() => showPage('results-page'), 1000);
+        }
+
+        function login() {
+            isLoggedIn = true;
+            showToast('Login Successful!');
+            showPage('dashboard-page');
+        }
+
+        function logout() {
+            isLoggedIn = false;
+            showToast('You have been logged out.');
+            showPage('scan-page');
+        }
+        
+        function showLeaderboard(type) {
+            document.querySelectorAll('.leaderboard-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(`${type}-leaderboard`).classList.add('active');
+            document.querySelectorAll('.tabs .tab-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function uploadImage(type) {
+            const btn = document.getElementById(`upload-${type}`);
+            if (!btn.classList.contains('uploaded')) {
+                btn.classList.add('uploaded');
+                btn.children[0].textContent = '✔️';
+                showToast('Image selected.');
+            }
+        }
+        
+        function submitForVerification() {
+            ['barcode', 'front', 'ingredients'].forEach(type => {
+                 const btn = document.getElementById(`upload-${type}`);
+                 btn.classList.remove('uploaded');
+                 const icon = btn.children[0];
+                 if(type==='barcode') icon.textContent = '📊';
+                 if(type==='front') icon.textContent = '📦';
+                 if(type==='ingredients') icon.textContent = '🧪';
+            });
+            showToast('Submitted for verification! +50 XP pending.');
+            setTimeout(() => showPage('verify-page'), 1500);
+        }
+
+        function handleVerification(isApproved) {
+            if (isApproved) showToast('Verification complete! +10 XP awarded.');
+            else showToast('Submission flagged for admin review.');
+            setTimeout(() => showPage('dashboard-page'), 1500);
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast-notification');
+            toast.innerText = message;
+            toast.style.bottom = '20px';
+            setTimeout(() => { toast.style.bottom = '-100px'; }, 2000);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => showPage('scan-page'));
+    </script>
+</body>
+</html>
